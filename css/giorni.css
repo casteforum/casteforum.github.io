@@ -1,0 +1,157 @@
+.linecontainer ul {
+  margin: 0;
+  height: 100%;
+  list-style: none;
+  position: relative;
+  padding: 50px 0 12px 0;
+  color: #fff;
+  font-size: 13px;
+}
+.linecontainer ul:before {
+  box-sizing: content-box !important;
+  content: "";
+  width: 1px;
+  height: calc(100% - 50px);
+  position: absolute;
+  left: 50%;
+  border-right: 2px dashed #fff;
+}
+.linecontainer ul li {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+.linecontainer ul li:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+.linecontainer ul li .blocklist {
+  flex:50%;
+}
+.linecontainer ul li .blocklist.disabled label > div{
+  background-color: rgba(0, 0, 0, 0.3);
+  cursor: default !important;
+}
+.linecontainer ul li .left {
+  margin-right: 60px;
+  text-align: right;
+}
+.linecontainer ul li .blocklist label > div {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  border-radius: 6px;
+  max-width: 220px;
+  width: 220px;
+  height: 123px;
+  max-height: 123px;
+  margin-top: 10px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.08);
+  display: inline-block;
+}
+.linecontainer ul li:not(:first-child) {
+  margin-top: 60px;
+}
+.linecontainer ul li > span {
+  width: 3px;
+  height: 100%;
+  background: #fff;
+  left: 50%;
+  top: 0;
+  position: absolute;
+}
+.linecontainer ul li > span:before, .linecontainer ul li > span:after {
+  box-sizing: content-box !important;
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  position: absolute;
+  background: #86b7e7;
+  left: -4.5px;
+  top: 0;
+}
+.linecontainer ul li span:after {
+  top: 100%;
+}
+.linecontainer ul li .right label > div {
+  margin-left: 10px;
+}
+.linecontainer ul li .left label > div {
+  margin-right: 10px;
+}
+.linecontainer div .title, .linecontainer label div .type {
+  font-weight: 600;
+  font-size: 12px;
+}
+.linecontainer div .info {
+  font-weight: 300;
+  height: 70px;
+  text-align: justify;
+  overflow: hidden;
+}
+.linecontainer div > div > div:not(.modal-dialog) {
+  margin-top: 5px;
+  margin-right: 10px;
+}
+.linecontainer span.number {
+  height: 100%;
+}
+.linecontainer span.number span {
+  position: absolute;
+  font-size: 10px;
+  left: -35px;
+  font-weight: bold;
+}
+.linecontainer span.number.nright span {
+  position: absolute;
+  font-size: 10px;
+  left: 10px;
+  font-weight: bold;
+}
+.linecontainer span.number span:first-child {
+  top: 0;
+}
+.linecontainer span.number span:last-child {
+  top: 100%;
+}
+.linecontainer{
+  /*display: inline-block;*/
+  padding-bottom: 50px;
+}
+
+.labelgiorni > input{
+  visibility: hidden;
+  position: absolute;
+}
+.labelgiorni > input + div{
+  cursor:pointer;
+}
+.labelgiorni > input:checked + div{
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  color: black !important;
+}
+
+@media only screen and (max-device-width: 989px) {
+  .linecontainer ul li .blocklist label > div {
+    max-width: calc(50vw - 60px);
+    width: calc(50vw - 60px);
+    max-height: max-content;
+    height: auto;
+  }
+  .linecontainer ul li .blocklist label > div .info {
+    height: auto;
+  }
+}
+
+.modal {
+  text-align: justify;
+  color: black;
+  font-size: initial;
+  padding-right: 0px !important;
+}
+
+nav {
+  padding-right: 37px !important;
+}

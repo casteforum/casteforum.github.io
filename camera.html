@@ -1,0 +1,276 @@
+
+<html>
+  <head>
+    <title>Forum &ndash; Scan</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://schmich.github.io/instascan/style.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/3.3.3/adapter.min.js"></script>
+    <script type="text/javascript" src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
+    <script type="text/javascript" src="instascan.min.js"></script>
+    <style type="text/css">.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+  width: 500px;
+  margin: 0px auto;
+  padding: 40px 60px;
+  background-color: #fff;
+  border-radius: 10px;
+  font-size: 50px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .33);
+  transition: all .3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-default-button{
+	width: 100px;
+	height: 60px;
+	font-size: 40px;
+}
+
+.modal-header>h3 {
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-header>b>h3 {
+  margin-top: 0;
+  color: red;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-default-button {
+  float: right;
+}
+
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}</style>
+  </head>
+  <body>
+    <div id="app">
+    	<modal v-if="showModal" @close="showModal = false">
+    		<transition name="modal">
+    <div class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container">
+
+          <div class="modal-header" v-html="status">
+          </div>
+
+          <div class="modal-body" v-html="nomeCognome">
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+            	ID: {{scans[0]['content']}}
+              <button class="modal-default-button" @click="showModal = false">
+                OK
+              </button>
+            </slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+  </modal>
+      <div class="sidebar">
+        <section class="cameras">
+          <h2>Fotocamere</h2>
+          <ul>
+            <li v-if="cameras.length === 0" class="empty">Nessuna telecamera trovata</li>
+            <li v-for="camera in cameras">
+              <span v-if="camera.id == activeCameraId" :title="formatName(camera.name)" class="active">{{ formatName(camera.name) }}</span>
+              <span v-if="camera.id != activeCameraId" :title="formatName(camera.name)">
+                <a @click.stop="selectCamera(camera)">{{ formatName(camera.name) }}</a>
+              </span>
+            </li>
+          </ul>
+        </section>
+        <section class="cameras">
+          <h2>Rifletti fotocamera</h2>
+          <ul>
+            <li v-if="rifletti.length === 0" class="empty">Nessuna telecamera trovata</li>
+            <li v-for="opzioni in rifletti">
+              <span v-if="opzioni.id == opzioniId" :title="formatName(opzioni.name)" class="active">{{ formatName(opzioni.name) }}</span>
+              <span v-if="opzioni.id != opzioniId" :title="formatName(opzioni.name)">
+                <a @click.stop="riflettiCamera(opzioni)">{{ formatName(opzioni.name) }}</a>
+              </span>
+            </li>
+          </ul>
+        </section>
+        <section class="cameras">
+          <h2>Giorni</h2>
+          <ul>
+            <li v-for="day in days">
+              <span v-if="day.id == dayID" :title="formatName(day.name)" class="active">{{ formatName(day.name) }}</span>
+              <span v-if="day.id != dayID" :title="formatName(day.name)">
+                <a @click.stop="selectDay(day)">{{ formatName(day.name) }}</a>
+              </span>
+            </li>
+          </ul>
+        </section>
+        <section class="cameras">
+          <h2>Sede</h2>
+          <ul>
+            <li v-for="sede in sedi">
+              <span v-if="sede.id == sedeID" :title="formatName(sede.name)" class="active">{{ formatName(sede.name) }}</span>
+              <span v-if="sede.id != sedeID" :title="formatName(sede.name)">
+                <a @click.stop="selectSede(sede)">{{ formatName(sede.name) }}</a>
+              </span>
+            </li>
+          </ul>
+        </section>
+        <section class="scans">
+          <h2>Scan</h2>
+          <ul v-if="scans.length === 0">
+            <li class="empty">Nessuno scan</li>
+          </ul>
+          <transition-group name="scans" tag="ul">
+            <li v-for="scan in scans" :key="scan.date" :title="scan.content">{{ scan.content }}</li>
+          </transition-group>
+        </section>
+      </div>
+      <div class="preview-container">
+        <video id="preview" playsinline></video>
+      </div>
+    </div>
+    <script type="text/javascript">
+        function getD () {
+            var d = new Date();
+            d = d.getDate();
+            if (d == 4) {
+                return 1;
+            } else if (d == 5) {
+                return 2;
+            } else {
+                return 0;
+            }
+        }
+        var app = new Vue({
+  el: '#app',
+  data: {
+  	showModal: false,
+  	status: "<h3>ACCETTATO</h3>",
+  	nomeCognome: "...",
+    scanner: null,
+    activeCameraId: null,
+    opzioniId: 0,
+    dayID: getD(),
+    sedeID : 0,
+    cameras: [],
+    scans: [],
+    rifletti: [
+      {id: 0, name: "NON RIFLETTERE"},
+      {id: 1, name: "RIFLETTI"}
+    ],
+    days: [
+        {id: 0, name: "Primo Giorno"},
+        {id: 1, name: "Secondo Giorno"},
+        {id: 2, name: "Terzo Giorno"}
+    ],
+    sedi: [
+        {id: 0, name: "SEDE"},
+        {id: 1, name: "SUCCURSALE"}
+    ]
+  },
+  mounted: function () {
+    var self = this;
+    self.scanner = new Instascan.Scanner({ video: document.getElementById('preview'), mirror: false });
+    self.scanner.addListener('scan', function (content, image) {
+      self.scans.unshift({ date: +(Date.now()), content: content });
+      var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                if (xhttp.responseText[self.dayID] == self.sedeID.toString()) {
+                	self.nomeCognome = xhttp.responseText.substr(3, xhttp.responseText.length);
+                	self.status = "<h3>ACCETTATO</h3>";
+                	self.showModal = true;
+                } else {
+                    self.nomeCognome = xhttp.responseText.substr(3, xhttp.responseText.length);
+                	self.status = "<b><h3>NON ACCETTATO</h3></b>";
+                	self.showModal = true;
+                }
+            }
+        };
+        //xhttp.open("GET", "https://casteforum.cf/?page=auth&ID="+content, true); METTERE LINK!!!!!!!!!!
+        xhttp.open("GET", "https://localhost/?page=auth&ID="+content, true);
+        self.content = content;
+        xhttp.send();
+    });
+    Instascan.Camera.getCameras().then(function (cameras) {
+      self.cameras = cameras;
+      if (cameras.length > 1) {
+        self.activeCameraId = cameras[1].id;
+        self.scanner.start(cameras[1]);
+      } else if (cameras.length > 0) {
+        self.activeCameraId = cameras[0].id;
+        self.scanner.start(cameras[0]);
+      } else {
+        console.error('No cameras found.');
+      }
+    }).catch(function (e) {
+      console.error(e);
+    });
+  },
+  methods: {
+    formatName: function (name) {
+      return name || '(unknown)';
+    },
+    selectCamera: function (camera) {
+      this.activeCameraId = camera.id;
+      this.scanner.start(camera);
+    },
+    riflettiCamera: function (opzione) {
+      this.scanner.mirror = opzione.id;
+      this.opzioniId = opzione.id;
+    },
+    selectDay: function (day) {
+      this.dayID = day.id;
+    },
+    selectSede: function (sede) {
+      this.sedeID = sede.id;
+    }
+  }
+});
+    </script>
+  </body>
+</html>
